@@ -1,0 +1,6 @@
+{
+  "name": "Federal Polytechnic Ede - Computer Science Library System",
+  "description": "Role-based Library Management System for the Department of Computer Science, Federal Polytechnic Ede. ND final-year academic project featuring Administrator and Student portals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
