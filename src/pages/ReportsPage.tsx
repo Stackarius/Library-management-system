@@ -169,10 +169,14 @@ export const ReportsPage: React.FC = () => {
       {/* Editorial Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#E5E4DE]">
         <div>
-          <div className="text-xs font-mono text-[#5A6258] uppercase tracking-wider">
-            Departmental Analytics & Auditing
+          <div className="flex items-center gap-2 text-xs font-mono text-[#5A6258] uppercase tracking-wider">
+            <span>Departmental Auditing</span>
+            <span className="text-stone-300">·</span>
+            <span>Computer Science</span>
+            <span className="text-stone-300">·</span>
+            <span className="text-[#245747] font-semibold">{INSTITUTION_INFO.academicSession}</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-medium text-[#202721] tracking-tight mt-1">
+          <h1 className="font-serif text-2xl font-medium text-[#202721] tracking-tight mt-1">
             Circulation & Audit Reports
           </h1>
           <p className="text-xs sm:text-sm text-[#5A6258] mt-1">
@@ -183,7 +187,7 @@ export const ReportsPage: React.FC = () => {
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             onClick={handleExportCSV}
-            className="px-3 py-1.5 text-xs font-medium bg-white hover:bg-stone-50 text-[#202721] rounded-md border border-[#E5E4DE] shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 text-xs font-medium bg-white hover:bg-stone-50 text-[#202721] rounded-md border border-[#E5E4DE] shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 stroke-[1.75]" />
             <span>Export CSV</span>
@@ -191,7 +195,7 @@ export const ReportsPage: React.FC = () => {
 
           <button
             onClick={() => setIsPrintModalOpen(true)}
-            className="px-3.5 py-1.5 text-xs font-medium bg-[#245747] hover:bg-[#1B4236] text-white rounded-md shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 text-xs font-medium bg-[#245747] hover:bg-[#1B4236] text-white rounded-md shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5 stroke-[1.75]" />
             <span>Print Audit Sheet</span>
@@ -203,9 +207,9 @@ export const ReportsPage: React.FC = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <button
           onClick={() => setReportType('overdue')}
-          className={`p-3.5 rounded-md text-left border transition-all ${
+          className={`p-3.5 rounded-lg text-left border transition-all cursor-pointer ${
             reportType === 'overdue'
-              ? 'bg-white border-[#245747] shadow-2xs'
+              ? 'bg-white border-[#245747] shadow-2xs ring-1 ring-[#245747]'
               : 'bg-white border-[#E5E4DE] hover:bg-stone-50'
           }`}
         >
@@ -223,9 +227,9 @@ export const ReportsPage: React.FC = () => {
 
         <button
           onClick={() => setReportType('active_loans')}
-          className={`p-3.5 rounded-md text-left border transition-all ${
+          className={`p-3.5 rounded-lg text-left border transition-all cursor-pointer ${
             reportType === 'active_loans'
-              ? 'bg-white border-[#245747] shadow-2xs'
+              ? 'bg-white border-[#245747] shadow-2xs ring-1 ring-[#245747]'
               : 'bg-white border-[#E5E4DE] hover:bg-stone-50'
           }`}
         >
@@ -243,9 +247,9 @@ export const ReportsPage: React.FC = () => {
 
         <button
           onClick={() => setReportType('inventory')}
-          className={`p-3.5 rounded-md text-left border transition-all ${
+          className={`p-3.5 rounded-lg text-left border transition-all cursor-pointer ${
             reportType === 'inventory'
-              ? 'bg-white border-[#245747] shadow-2xs'
+              ? 'bg-white border-[#245747] shadow-2xs ring-1 ring-[#245747]'
               : 'bg-white border-[#E5E4DE] hover:bg-stone-50'
           }`}
         >
@@ -263,9 +267,9 @@ export const ReportsPage: React.FC = () => {
 
         <button
           onClick={() => setReportType('clearance')}
-          className={`p-3.5 rounded-md text-left border transition-all ${
+          className={`p-3.5 rounded-lg text-left border transition-all cursor-pointer ${
             reportType === 'clearance'
-              ? 'bg-white border-[#245747] shadow-2xs'
+              ? 'bg-white border-[#245747] shadow-2xs ring-1 ring-[#245747]'
               : 'bg-white border-[#E5E4DE] hover:bg-stone-50'
           }`}
         >
@@ -283,7 +287,7 @@ export const ReportsPage: React.FC = () => {
       </div>
 
       {/* Main Report Table Display */}
-      <div className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs overflow-hidden">
         <div className="p-4 bg-[#F7F6F2] border-b border-[#E5E4DE] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <span className="text-[10px] font-mono uppercase text-[#8A9287]">
@@ -302,37 +306,45 @@ export const ReportsPage: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
+          {/* Overdue Report */}
           {reportType === 'overdue' && (
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#E5E4DE] text-[10px] font-mono uppercase tracking-wider text-[#8A9287] bg-white">
-                  <th className="py-2.5 px-4 font-semibold">Student Name & Matric</th>
-                  <th className="py-2.5 px-4 font-semibold">Level</th>
+                <tr className="border-b border-[#E5E4DE] text-[10px] font-mono uppercase tracking-wider text-[#8A9287] bg-stone-50/50">
+                  <th className="py-2.5 px-4 font-semibold">Student Borrower</th>
                   <th className="py-2.5 px-4 font-semibold">Overdue Textbook</th>
+                  <th className="py-2.5 px-4 font-semibold">Issue Date</th>
                   <th className="py-2.5 px-4 font-semibold">Due Date</th>
-                  <th className="py-2.5 px-4 font-semibold">Late Days</th>
-                  <th className="py-2.5 px-4 font-semibold text-right">Fine Accrued</th>
+                  <th className="py-2.5 px-4 font-semibold">Fine Amount</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5E4DE]">
                 {overdueLoans.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-[#5A6258]">
-                      No overdue books on record.
+                      No active overdue loans in the department.
                     </td>
                   </tr>
                 ) : (
-                  overdueLoans.map((l) => (
-                    <tr key={l.id} className="hover:bg-stone-50/70 transition-colors">
-                      <td className="py-2.5 px-4">
-                        <div className="font-medium text-[#202721]">{l.studentName}</div>
-                        <div className="text-[10px] font-mono text-[#5A6258]">{l.studentMatricNo}</div>
+                  overdueLoans.map((loan) => (
+                    <tr key={loan.id} className="hover:bg-stone-50/70 transition-colors">
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-[#202721]">{loan.studentName}</div>
+                        <div className="text-[10px] font-mono text-[#5A6258]">{loan.studentMatricNo} ({loan.studentLevel})</div>
                       </td>
-                      <td className="py-2.5 px-4 font-mono">{l.studentLevel}</td>
-                      <td className="py-2.5 px-4 font-serif text-[#202721]">{l.bookTitle}</td>
-                      <td className="py-2.5 px-4 font-mono text-rose-700 font-medium">{l.dueDate}</td>
-                      <td className="py-2.5 px-4 font-mono">{Math.max(1, Math.round(l.fineAmount / INSTITUTION_INFO.dailyFineRate))} days</td>
-                      <td className="py-2.5 px-4 font-mono text-right text-rose-700 font-semibold">₦{l.fineAmount}</td>
+                      <td className="py-3 px-4 font-serif text-[#202721]">
+                        <div>{loan.bookTitle}</div>
+                        <div className="text-[10px] font-mono text-[#5A6258] font-sans">{loan.courseCode || 'COM'} · ISBN: {loan.bookIsbn}</div>
+                      </td>
+                      <td className="py-3 px-4 font-mono text-[11px] text-[#5A6258]">{loan.issueDate}</td>
+                      <td className="py-3 px-4 font-mono text-[11px] text-rose-700 font-semibold">{loan.dueDate}</td>
+                      <td className="py-3 px-4 font-mono text-xs text-rose-700 font-bold">₦{loan.fineAmount}</td>
+                      <td className="py-3 px-4 text-right">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                          Penalty Active
+                        </span>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -340,70 +352,67 @@ export const ReportsPage: React.FC = () => {
             </table>
           )}
 
+          {/* Active Loans Report */}
           {reportType === 'active_loans' && (
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#E5E4DE] text-[10px] font-mono uppercase tracking-wider text-[#8A9287] bg-white">
-                  <th className="py-2.5 px-4 font-semibold">Curriculum Textbook</th>
-                  <th className="py-2.5 px-4 font-semibold">Borrower Student</th>
-                  <th className="py-2.5 px-4 font-semibold">Level</th>
+                <tr className="border-b border-[#E5E4DE] text-[10px] font-mono uppercase tracking-wider text-[#8A9287] bg-stone-50/50">
+                  <th className="py-2.5 px-4 font-semibold">Textbook Title</th>
+                  <th className="py-2.5 px-4 font-semibold">Student Borrower</th>
+                  <th className="py-2.5 px-4 font-semibold">Course Code</th>
                   <th className="py-2.5 px-4 font-semibold">Issue Date</th>
-                  <th className="py-2.5 px-4 font-semibold">Due Date</th>
-                  <th className="py-2.5 px-4 font-semibold text-right">Status</th>
+                  <th className="py-2.5 px-4 font-semibold">Due Schedule</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">Officer</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5E4DE]">
-                {activeLoans.map((l) => (
-                  <tr key={l.id} className="hover:bg-stone-50/70 transition-colors">
-                    <td className="py-2.5 px-4">
-                      <div className="font-serif font-medium text-[#202721]">{l.bookTitle}</div>
-                      <div className="text-[10px] font-mono text-[#5A6258]">{l.courseCode || 'COM'}</div>
+                {activeLoans.map((loan) => (
+                  <tr key={loan.id} className="hover:bg-stone-50/70 transition-colors">
+                    <td className="py-3 px-4 font-serif text-[#202721] max-w-xs">{loan.bookTitle}</td>
+                    <td className="py-3 px-4">
+                      <div className="font-medium text-[#202721]">{loan.studentName}</div>
+                      <div className="text-[10px] font-mono text-[#5A6258]">{loan.studentMatricNo}</div>
                     </td>
-                    <td className="py-2.5 px-4">
-                      <div className="font-medium text-[#202721]">{l.studentName}</div>
-                      <div className="text-[10px] font-mono text-[#5A6258]">{l.studentMatricNo}</div>
-                    </td>
-                    <td className="py-2.5 px-4 font-mono">{l.studentLevel}</td>
-                    <td className="py-2.5 px-4 font-mono">{l.issueDate}</td>
-                    <td className="py-2.5 px-4 font-mono">{l.dueDate}</td>
-                    <td className="py-2.5 px-4 text-right">
-                      {l.status === 'Overdue' ? (
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
-                          Overdue (₦{l.fineAmount})
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#EAF0EC] text-[#1B4236] border border-[#245747]/20">
-                          On Schedule
-                        </span>
-                      )}
-                    </td>
+                    <td className="py-3 px-4 font-mono">{loan.courseCode || 'COM'}</td>
+                    <td className="py-3 px-4 font-mono text-[11px] text-[#5A6258]">{loan.issueDate}</td>
+                    <td className="py-3 px-4 font-mono text-[11px] text-[#245747] font-medium">{loan.dueDate}</td>
+                    <td className="py-3 px-4 text-right text-[#5A6258]">{loan.issuedBy}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
 
+          {/* Holdings Report */}
           {reportType === 'inventory' && (
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#E5E4DE] text-[10px] font-mono uppercase tracking-wider text-[#8A9287] bg-white">
-                  <th className="py-2.5 px-4 font-semibold">Curriculum Classification Area</th>
-                  <th className="py-2.5 px-4 font-semibold">Total Stock</th>
-                  <th className="py-2.5 px-4 font-semibold">Available on Shelf</th>
-                  <th className="py-2.5 px-4 font-semibold">Checked Out</th>
-                  <th className="py-2.5 px-4 font-semibold text-right">Circulation Rate</th>
+                <tr className="border-b border-[#E5E4DE] text-[10px] font-mono uppercase tracking-wider text-[#8A9287] bg-stone-50/50">
+                  <th className="py-2.5 px-4 font-semibold">Curriculum Classification</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">Total Copies</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">On Shelf</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">On Loan</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">Utilization Rate</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5E4DE]">
                 {Object.entries(categoryStats).map(([cat, data]) => {
-                  const rate = Math.round((data.checkedOut / data.total) * 100);
+                  const utilRate = Math.round((data.checkedOut / data.total) * 100);
                   return (
                     <tr key={cat} className="hover:bg-stone-50/70 transition-colors">
-                      <td className="py-2.5 px-4 font-medium text-[#202721]">{cat}</td>
-                      <td className="py-2.5 px-4 font-mono">{data.total} vols</td>
-                      <td className="py-2.5 px-4 font-mono text-[#245747] font-medium">{data.available}</td>
-                      <td className="py-2.5 px-4 font-mono">{data.checkedOut}</td>
-                      <td className="py-2.5 px-4 font-mono text-right font-medium">{rate}%</td>
+                      <td className="py-3 px-4 font-medium text-[#202721]">{cat}</td>
+                      <td className="py-3 px-4 text-right font-mono text-[#202721] font-semibold">{data.total}</td>
+                      <td className="py-3 px-4 text-right font-mono text-[#245747]">{data.available}</td>
+                      <td className="py-3 px-4 text-right font-mono text-[#5A6258]">{data.checkedOut}</td>
+                      <td className="py-3 px-4 text-right font-mono font-medium">
+                        <span className={`px-2 py-0.5 rounded text-[11px] ${
+                          utilRate > 50
+                            ? 'bg-[#EAF0EC] text-[#1B4236]'
+                            : 'bg-stone-100 text-stone-700'
+                        }`}>
+                          {utilRate}%
+                        </span>
+                      </td>
                     </tr>
                   );
                 })}
@@ -411,34 +420,38 @@ export const ReportsPage: React.FC = () => {
             </table>
           )}
 
+          {/* Clearance Report */}
           {reportType === 'clearance' && (
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#E5E4DE] text-[10px] font-mono uppercase tracking-wider text-[#8A9287] bg-white">
-                  <th className="py-2.5 px-4 font-semibold">Matric Number</th>
-                  <th className="py-2.5 px-4 font-semibold">Student Name</th>
-                  <th className="py-2.5 px-4 font-semibold">Level</th>
-                  <th className="py-2.5 px-4 font-semibold">Active Books</th>
-                  <th className="py-2.5 px-4 font-semibold">Outstanding Fines</th>
-                  <th className="py-2.5 px-4 font-semibold text-right">Exam Clearance</th>
+                <tr className="border-b border-[#E5E4DE] text-[10px] font-mono uppercase tracking-wider text-[#8A9287] bg-stone-50/50">
+                  <th className="py-2.5 px-4 font-semibold">Matriculation & Name</th>
+                  <th className="py-2.5 px-4 font-semibold">Programme Cohort</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">Books in Custody</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">Overdue Fines</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">Examination Clearance</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5E4DE]">
                 {clearanceList.map((c) => (
                   <tr key={c.student.id} className="hover:bg-stone-50/70 transition-colors">
-                    <td className="py-2.5 px-4 font-mono">{c.student.matricNo}</td>
-                    <td className="py-2.5 px-4 font-medium text-[#202721]">{c.student.fullName}</td>
-                    <td className="py-2.5 px-4 font-mono">{c.student.level}</td>
-                    <td className="py-2.5 px-4 font-mono">{c.activeLoansCount} books</td>
-                    <td className="py-2.5 px-4 font-mono">{c.fines > 0 ? `₦${c.fines}` : '₦0'}</td>
-                    <td className="py-2.5 px-4 text-right">
+                    <td className="py-3 px-4">
+                      <div className="font-medium text-[#202721]">{c.student.fullName}</div>
+                      <div className="text-[10px] font-mono text-[#5A6258]">{c.student.matricNo}</div>
+                    </td>
+                    <td className="py-3 px-4 font-mono">{c.student.level} · Computer Science</td>
+                    <td className="py-3 px-4 text-right font-mono">{c.activeLoansCount}</td>
+                    <td className="py-3 px-4 text-right font-mono">₦{c.fines}</td>
+                    <td className="py-3 px-4 text-right">
                       {c.isCleared ? (
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#EAF0EC] text-[#1B4236] border border-[#245747]/20 font-semibold">
-                          CLEARED
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#EAF0EC] text-[#1B4236] border border-[#245747]/20">
+                          <CheckCircle2 className="w-3 h-3 stroke-[1.75]" />
+                          <span>CLEARED</span>
                         </span>
                       ) : (
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 font-semibold">
-                          HOLD / BLOCKED
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                          <AlertTriangle className="w-3 h-3 stroke-[1.75]" />
+                          <span>HOLD ACTIVE</span>
                         </span>
                       )}
                     </td>
@@ -462,14 +475,14 @@ export const ReportsPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="px-3.5 py-1.5 text-xs font-medium bg-[#245747] text-white rounded-md flex items-center gap-1.5"
+                  className="px-3.5 py-1.5 text-xs font-medium bg-[#245747] hover:bg-[#1B4236] text-white rounded-md flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Printer className="w-3.5 h-3.5" />
+                  <Printer className="w-3.5 h-3.5 stroke-[1.75]" />
                   <span>Print Document</span>
                 </button>
                 <button
                   onClick={() => setIsPrintModalOpen(false)}
-                  className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 border border-stone-200 rounded-md"
+                  className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 border border-stone-200 rounded-md cursor-pointer"
                 >
                   Close
                 </button>
@@ -544,7 +557,6 @@ export const ReportsPage: React.FC = () => {
               <div className="space-y-8">
                 <div className="border-b border-black w-3/4 mx-auto" />
                 <div>
-                  <div className="border-b border-black w-3/4 mx-auto mb-1" />
                   <div className="font-bold">External Project Examiner</div>
                   <div className="text-[10px] text-stone-600">NBTE Accreditation Team</div>
                 </div>

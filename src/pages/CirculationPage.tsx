@@ -19,6 +19,7 @@ import {
   ChevronRight,
   ShieldCheck,
   AlertCircle,
+  Layers,
 } from 'lucide-react';
 
 export const CirculationPage: React.FC = () => {
@@ -156,14 +157,18 @@ export const CirculationPage: React.FC = () => {
       {/* Editorial Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#E5E4DE]">
         <div>
-          <div className="text-xs font-mono text-[#5A6258] uppercase tracking-wider">
-            Circulation Operations Desk
+          <div className="flex items-center gap-2 text-xs font-mono text-[#5A6258] uppercase tracking-wider">
+            <span>Circulation Operations</span>
+            <span className="text-stone-300">·</span>
+            <span>Computer Science</span>
+            <span className="text-stone-300">·</span>
+            <span className="text-[#245747] font-semibold">{activeLoans.length} Loans Active</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-medium text-[#202721] tracking-tight mt-1">
-            Book Loans & Returns
+          <h1 className="font-serif text-2xl font-medium text-[#202721] tracking-tight mt-1">
+            Book Loans & Circulation Desk
           </h1>
           <p className="text-xs sm:text-sm text-[#5A6258] mt-1">
-            Active loans ledger, checkout processing, and overdue fee reconciliation
+            Active loans ledger, checkout processing terminal, and overdue penalty reconciliation
           </p>
         </div>
 
@@ -171,7 +176,7 @@ export const CirculationPage: React.FC = () => {
         <div className="p-1 rounded-lg bg-stone-200/70 border border-[#E5E4DE] flex items-center text-xs self-start sm:self-auto">
           <button
             onClick={() => setActiveTab('active')}
-            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
               activeTab === 'active'
                 ? 'bg-white text-[#202721] shadow-2xs font-semibold'
                 : 'text-[#5A6258] hover:text-[#202721]'
@@ -181,7 +186,7 @@ export const CirculationPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('issue')}
-            className={`px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'issue'
                 ? 'bg-white text-[#202721] shadow-2xs font-semibold'
                 : 'text-[#5A6258] hover:text-[#202721]'
@@ -192,7 +197,7 @@ export const CirculationPage: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
               activeTab === 'history'
                 ? 'bg-white text-[#202721] shadow-2xs font-semibold'
                 : 'text-[#5A6258] hover:text-[#202721]'
@@ -206,8 +211,47 @@ export const CirculationPage: React.FC = () => {
       {/* TAB 1: ACTIVE LOANS LEDGER */}
       {activeTab === 'active' && (
         <div className="space-y-4">
+          {/* Summary Strip */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-white p-3 rounded-lg border border-[#E5E4DE] shadow-2xs">
+              <div className="text-[10px] font-mono uppercase text-[#8A9287]">Active Custody</div>
+              <div className="text-lg font-semibold font-mono text-[#202721] mt-0.5">
+                {activeLoans.length} books
+              </div>
+              <div className="text-[10px] text-[#5A6258] mt-0.5">Currently borrowed</div>
+            </div>
+
+            <div className="bg-white p-3 rounded-lg border border-[#E5E4DE] shadow-2xs">
+              <div className="text-[10px] font-mono uppercase text-[#8A9287]">On Schedule</div>
+              <div className="text-lg font-semibold font-mono text-[#245747] mt-0.5">
+                {activeLoans.filter((l) => l.status === 'Active').length} books
+              </div>
+              <div className="text-[10px] text-[#5A6258] mt-0.5">Within loan term</div>
+            </div>
+
+            <div className={`p-3 rounded-lg border shadow-2xs ${
+              stats.overdueLoansCount > 0 ? 'bg-[#FDF8F7] border-rose-200' : 'bg-white border-[#E5E4DE]'
+            }`}>
+              <div className="text-[10px] font-mono uppercase text-[#8A9287]">Overdue Loans</div>
+              <div className={`text-lg font-semibold font-mono mt-0.5 ${
+                stats.overdueLoansCount > 0 ? 'text-rose-700' : 'text-[#202721]'
+              }`}>
+                {stats.overdueLoansCount} defaulters
+              </div>
+              <div className="text-[10px] text-rose-700 font-mono mt-0.5">Requires check-in</div>
+            </div>
+
+            <div className="bg-white p-3 rounded-lg border border-[#E5E4DE] shadow-2xs">
+              <div className="text-[10px] font-mono uppercase text-[#8A9287]">Accrued Penalties</div>
+              <div className="text-lg font-semibold font-mono text-[#202721] mt-0.5">
+                ₦{stats.totalFineAccrued}
+              </div>
+              <div className="text-[10px] text-[#5A6258] mt-0.5">Standard ₦50/day rate</div>
+            </div>
+          </div>
+
           {/* Filter Bar */}
-          <div className="bg-white p-3 rounded-md border border-[#E5E4DE] shadow-2xs flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+          <div className="bg-white p-3 rounded-lg border border-[#E5E4DE] shadow-2xs flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
             <div className="relative flex-1 max-w-md">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8A9287] stroke-[1.75]" />
               <input
@@ -215,8 +259,16 @@ export const CirculationPage: React.FC = () => {
                 value={loanSearch}
                 onChange={(e) => setLoanSearch(e.target.value)}
                 placeholder="Search active loan by book title, student name, matric..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#F7F6F2] hover:bg-[#F2F0E8] focus:bg-white text-[#202721] rounded-md border border-[#E5E4DE] focus:outline-none focus:border-[#245747]"
+                className="w-full pl-8 pr-8 py-1.5 text-xs bg-[#F7F6F2] hover:bg-[#F2F0E8] focus:bg-white text-[#202721] rounded-md border border-[#E5E4DE] focus:outline-none focus:border-[#245747]"
               />
+              {loanSearch && (
+                <button
+                  onClick={() => setLoanSearch('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+                >
+                  <X className="w-3.5 h-3.5 stroke-[1.75]" />
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -242,7 +294,7 @@ export const CirculationPage: React.FC = () => {
 
           {/* Active Loans Table */}
           {filteredActiveLoans.length === 0 ? (
-            <div className="bg-white rounded-md border border-[#E5E4DE] p-12 text-center">
+            <div className="bg-white rounded-lg border border-[#E5E4DE] p-12 text-center">
               <CheckCircle2 className="w-8 h-8 text-[#245747] mx-auto mb-2 stroke-[1.75]" />
               <h3 className="font-serif text-base font-semibold text-[#202721]">
                 No Loans Found
@@ -252,22 +304,23 @@ export const CirculationPage: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs overflow-hidden">
+            <div className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="bg-[#F7F6F2] border-b border-[#E5E4DE] text-[10px] font-mono uppercase tracking-wider text-[#8A9287]">
-                      <th className="py-2.5 px-4 font-semibold">Borrowed Book</th>
+                      <th className="py-2.5 px-4 font-semibold">Borrowed Textbook</th>
                       <th className="py-2.5 px-4 font-semibold">Student Borrower</th>
                       <th className="py-2.5 px-4 font-semibold">Issue Date</th>
-                      <th className="py-2.5 px-4 font-semibold">Due Date</th>
-                      <th className="py-2.5 px-4 font-semibold">Status / Fines</th>
+                      <th className="py-2.5 px-4 font-semibold">Due Schedule</th>
+                      <th className="py-2.5 px-4 font-semibold">Status / Fine</th>
                       <th className="py-2.5 px-4 font-semibold text-right">Circulation Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E5E4DE]">
                     {filteredActiveLoans.map((loan) => {
                       const isOverdue = loan.status === 'Overdue';
+                      const daysDiff = getDaysDiff(SYSTEM_CURRENT_DATE, loan.dueDate);
 
                       return (
                         <tr key={loan.id} className="hover:bg-stone-50/70 transition-colors">
@@ -296,11 +349,20 @@ export const CirculationPage: React.FC = () => {
                             {loan.issueDate}
                           </td>
 
-                          {/* Due Date */}
+                          {/* Due Date & Remaining days */}
                           <td className="py-3 px-4 font-mono text-[11px]">
-                            <span className={isOverdue ? 'text-rose-700 font-semibold' : 'text-[#202721]'}>
+                            <div className={isOverdue ? 'text-rose-700 font-semibold' : 'text-[#202721]'}>
                               {loan.dueDate}
-                            </span>
+                            </div>
+                            <div className="text-[10px] mt-0.5">
+                              {isOverdue ? (
+                                <span className="text-rose-700 font-medium">({Math.abs(daysDiff)}d overdue)</span>
+                              ) : daysDiff === 0 ? (
+                                <span className="text-amber-700 font-medium">(Due today)</span>
+                              ) : (
+                                <span className="text-[#5A6258]">({daysDiff}d remaining)</span>
+                              )}
+                            </div>
                           </td>
 
                           {/* Status */}
@@ -327,14 +389,14 @@ export const CirculationPage: React.FC = () => {
                               <button
                                 onClick={() => renewLoan(loan.id)}
                                 title="Renew loan for 14 additional days"
-                                className="px-2 py-1 text-[11px] font-medium text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded border border-[#E5E4DE] transition-colors"
+                                className="px-2 py-1 text-[11px] font-medium text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded border border-[#E5E4DE] transition-colors cursor-pointer"
                               >
                                 Renew +14d
                               </button>
 
                               <button
                                 onClick={() => setReturningLoan(loan)}
-                                className="px-2.5 py-1 text-[11px] font-medium bg-[#245747] hover:bg-[#1B4236] text-white rounded shadow-2xs transition-colors"
+                                className="px-2.5 py-1 text-[11px] font-medium bg-[#245747] hover:bg-[#1B4236] text-white rounded shadow-2xs transition-colors cursor-pointer"
                               >
                                 Check In
                               </button>
@@ -342,7 +404,7 @@ export const CirculationPage: React.FC = () => {
                               <button
                                 onClick={() => setReceiptLoan(loan)}
                                 title="Print circulation checkout slip"
-                                className="p-1 text-stone-400 hover:text-stone-700 rounded"
+                                className="p-1 text-stone-400 hover:text-stone-700 rounded cursor-pointer"
                               >
                                 <Printer className="w-3.5 h-3.5 stroke-[1.75]" />
                               </button>
@@ -364,7 +426,7 @@ export const CirculationPage: React.FC = () => {
         <div className="max-w-4xl mx-auto space-y-6">
           <form onSubmit={handleIssueSubmit} className="space-y-6">
             {/* Step 1: Select Student Reader */}
-            <div className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs p-5 space-y-3">
+            <div className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs p-5 space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-[#E5E4DE]">
                 <div className="flex items-center gap-2">
                   <span className="w-5 h-5 rounded-full bg-[#245747] text-white text-[11px] font-mono font-semibold flex items-center justify-center">
@@ -405,7 +467,7 @@ export const CirculationPage: React.FC = () => {
                         key={student.id}
                         type="button"
                         onClick={() => setSelectedStudentId(student.id)}
-                        className={`p-2.5 rounded-md text-left transition-all border ${
+                        className={`p-2.5 rounded-md text-left transition-all border cursor-pointer ${
                           isSelected
                             ? 'bg-[#EAF0EC] border-[#245747] shadow-2xs'
                             : 'bg-white border-[#E5E4DE] hover:bg-stone-50'
@@ -459,7 +521,7 @@ export const CirculationPage: React.FC = () => {
             </div>
 
             {/* Step 2: Select Available Book */}
-            <div className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs p-5 space-y-3">
+            <div className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs p-5 space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-[#E5E4DE]">
                 <div className="flex items-center gap-2">
                   <span className="w-5 h-5 rounded-full bg-[#245747] text-white text-[11px] font-mono font-semibold flex items-center justify-center">
@@ -496,7 +558,7 @@ export const CirculationPage: React.FC = () => {
                         type="button"
                         onClick={() => setSelectedBookId(book.id)}
                         disabled={!isAvailable}
-                        className={`p-2.5 rounded-md text-left transition-all border ${
+                        className={`p-2.5 rounded-md text-left transition-all border cursor-pointer ${
                           isSelected
                             ? 'bg-[#EAF0EC] border-[#245747] shadow-2xs'
                             : !isAvailable
@@ -527,7 +589,7 @@ export const CirculationPage: React.FC = () => {
             </div>
 
             {/* Step 3: Loan Parameters */}
-            <div className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs p-5 space-y-4">
+            <div className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs p-5 space-y-4">
               <div className="flex items-center gap-2 pb-2 border-b border-[#E5E4DE]">
                 <span className="w-5 h-5 rounded-full bg-[#245747] text-white text-[11px] font-mono font-semibold flex items-center justify-center">
                   3
@@ -541,7 +603,7 @@ export const CirculationPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setDurationDays(7)}
-                  className={`p-3 rounded-md border text-center transition-all ${
+                  className={`p-3 rounded-md border text-center transition-all cursor-pointer ${
                     durationDays === 7
                       ? 'bg-[#EAF0EC] border-[#245747] text-[#1B4236] font-semibold'
                       : 'bg-white border-[#E5E4DE] text-[#202721] hover:bg-stone-50'
@@ -555,7 +617,7 @@ export const CirculationPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setDurationDays(14)}
-                  className={`p-3 rounded-md border text-center transition-all ${
+                  className={`p-3 rounded-md border text-center transition-all cursor-pointer ${
                     durationDays === 14
                       ? 'bg-[#EAF0EC] border-[#245747] text-[#1B4236] font-semibold'
                       : 'bg-white border-[#E5E4DE] text-[#202721] hover:bg-stone-50'
@@ -569,7 +631,7 @@ export const CirculationPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setDurationDays(21)}
-                  className={`p-3 rounded-md border text-center transition-all ${
+                  className={`p-3 rounded-md border text-center transition-all cursor-pointer ${
                     durationDays === 21
                       ? 'bg-[#EAF0EC] border-[#245747] text-[#1B4236] font-semibold'
                       : 'bg-white border-[#E5E4DE] text-[#202721] hover:bg-stone-50'
@@ -597,7 +659,7 @@ export const CirculationPage: React.FC = () => {
               {/* Final Confirmation and Action */}
               <div className="pt-3 border-t border-[#E5E4DE] flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="text-xs text-[#5A6258]">
-                  <span>Circulation Reference: </span>
+                  <span>Circulation Date: </span>
                   <span className="font-mono font-medium text-[#202721]">{SYSTEM_CURRENT_DATE}</span>
                   <span className="mx-2">·</span>
                   <span>Due: </span>
@@ -608,7 +670,7 @@ export const CirculationPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('active')}
-                    className="px-3.5 py-2 text-xs text-[#5A6258] hover:text-[#202721] rounded-md"
+                    className="px-3.5 py-2 text-xs text-[#5A6258] hover:text-[#202721] rounded-md cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -630,7 +692,7 @@ export const CirculationPage: React.FC = () => {
       {/* TAB 3: RETURNED HISTORY ARCHIVE */}
       {activeTab === 'history' && (
         <div className="space-y-4">
-          <div className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs overflow-hidden">
+          <div className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
@@ -685,7 +747,7 @@ export const CirculationPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setReturningLoan(null)}
-                className="text-stone-400 hover:text-stone-700 p-1"
+                className="text-stone-400 hover:text-stone-700 p-1 cursor-pointer"
               >
                 <X className="w-4 h-4 stroke-[1.75]" />
               </button>
@@ -741,7 +803,7 @@ export const CirculationPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setReturningLoan(null)}
-                className="px-3 py-1.5 text-xs text-[#5A6258] hover:text-[#202721]"
+                className="px-3 py-1.5 text-xs text-[#5A6258] hover:text-[#202721] cursor-pointer"
               >
                 Cancel
               </button>
@@ -803,7 +865,7 @@ export const CirculationPage: React.FC = () => {
             <div className="pt-2 flex justify-end gap-2">
               <button
                 onClick={() => setReceiptLoan(null)}
-                className="px-3 py-1.5 text-xs bg-stone-100 hover:bg-stone-200 rounded font-sans"
+                className="px-3 py-1.5 text-xs bg-stone-100 hover:bg-stone-200 rounded font-sans cursor-pointer"
               >
                 Close Slip
               </button>

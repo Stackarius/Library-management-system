@@ -21,6 +21,7 @@ import {
   ExternalLink,
   QrCode,
   GraduationCap,
+  X,
 } from 'lucide-react';
 
 export const StudentPortalPage: React.FC = () => {
@@ -96,19 +97,23 @@ export const StudentPortalPage: React.FC = () => {
       {/* Editorial Student Welcome Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#E5E4DE]">
         <div>
-          <div className="text-xs font-mono text-[#5A6258] uppercase tracking-wider">
-            Student Reader Desk · Federal Polytechnic Ede
+          <div className="flex items-center gap-2 text-xs font-mono text-[#5A6258] uppercase tracking-wider">
+            <span>Student Reader Portal</span>
+            <span className="text-stone-300">·</span>
+            <span>Computer Science</span>
+            <span className="text-stone-300">·</span>
+            <span className="text-[#245747] font-semibold">{INSTITUTION_INFO.academicSession}</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-medium text-[#202721] tracking-tight mt-1">
+          <h1 className="font-serif text-2xl font-medium text-[#202721] tracking-tight mt-1">
             Welcome, {currentUser?.name}
           </h1>
           <p className="text-xs sm:text-sm text-[#5A6258] mt-1 flex flex-wrap items-center gap-2">
-            <span className="font-mono text-[#202721] font-medium">
+            <span className="font-mono text-[#202721] font-semibold">
               Matric: {currentStudentProfile?.matricNo || currentUser?.staffOrMatricId}
             </span>
-            <span>·</span>
+            <span className="text-stone-300">·</span>
             <span>Department of Computer Science</span>
-            <span>·</span>
+            <span className="text-stone-300">·</span>
             <span className="font-mono">{currentStudentProfile?.level || currentUser?.level || 'ND II'}</span>
           </p>
         </div>
@@ -117,7 +122,7 @@ export const StudentPortalPage: React.FC = () => {
         <div className="p-1 rounded-lg bg-stone-200/70 border border-[#E5E4DE] flex items-center text-xs self-start sm:self-auto">
           <button
             onClick={() => handleTabSelect('my_loans')}
-            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
               activeTab === 'my_loans'
                 ? 'bg-white text-[#202721] shadow-2xs font-semibold'
                 : 'text-[#5A6258] hover:text-[#202721]'
@@ -127,7 +132,7 @@ export const StudentPortalPage: React.FC = () => {
           </button>
           <button
             onClick={() => handleTabSelect('opac')}
-            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
               activeTab === 'opac'
                 ? 'bg-white text-[#202721] shadow-2xs font-semibold'
                 : 'text-[#5A6258] hover:text-[#202721]'
@@ -137,7 +142,7 @@ export const StudentPortalPage: React.FC = () => {
           </button>
           <button
             onClick={() => handleTabSelect('id_card')}
-            className={`px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'id_card'
                 ? 'bg-white text-[#202721] shadow-2xs font-semibold'
                 : 'text-[#5A6258] hover:text-[#202721]'
@@ -148,7 +153,7 @@ export const StudentPortalPage: React.FC = () => {
           </button>
           <button
             onClick={() => handleTabSelect('history')}
-            className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
               activeTab === 'history'
                 ? 'bg-white text-[#202721] shadow-2xs font-semibold'
                 : 'text-[#5A6258] hover:text-[#202721]'
@@ -161,47 +166,47 @@ export const StudentPortalPage: React.FC = () => {
 
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-white p-4 rounded-md border border-[#E5E4DE] shadow-2xs">
-          <div className="text-[11px] font-mono uppercase text-[#8A9287]">Active Loans</div>
-          <div className="text-2xl font-semibold font-mono text-[#202721] mt-1">
+        <div className="bg-white p-3.5 rounded-lg border border-[#E5E4DE] shadow-2xs">
+          <div className="text-[10px] font-mono uppercase text-[#8A9287]">Active Loans</div>
+          <div className="text-xl font-semibold font-mono text-[#202721] mt-0.5">
             {myActiveLoans.length}
           </div>
-          <div className="text-[11px] text-[#5A6258] mt-0.5">
+          <div className="text-[10px] text-[#5A6258] mt-0.5">
             Quota: {myActiveLoans.length}/{INSTITUTION_INFO.maxBorrowLimit} books borrowed
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-md border border-[#E5E4DE] shadow-2xs">
-          <div className="text-[11px] font-mono uppercase text-[#8A9287]">Due Soon</div>
-          <div className="text-2xl font-semibold font-mono text-[#245747] mt-1">
+        <div className="bg-white p-3.5 rounded-lg border border-[#E5E4DE] shadow-2xs">
+          <div className="text-[10px] font-mono uppercase text-[#8A9287]">Due Soon</div>
+          <div className="text-xl font-semibold font-mono text-[#245747] mt-0.5">
             {myActiveLoans.filter((l) => l.status === 'Active').length}
           </div>
-          <div className="text-[11px] text-[#5A6258] mt-0.5">
+          <div className="text-[10px] text-[#5A6258] mt-0.5">
             Return on or before due date
           </div>
         </div>
 
-        <div className={`p-4 rounded-md border shadow-2xs ${
-          totalFineAccrued > 0 ? 'bg-white border-rose-200' : 'bg-white border-[#E5E4DE]'
+        <div className={`p-3.5 rounded-lg border shadow-2xs ${
+          totalFineAccrued > 0 ? 'bg-[#FDF8F7] border-rose-200' : 'bg-white border-[#E5E4DE]'
         }`}>
-          <div className="text-[11px] font-mono uppercase text-[#8A9287]">Overdue Fines</div>
-          <div className={`text-2xl font-semibold font-mono mt-1 ${
+          <div className="text-[10px] font-mono uppercase text-[#8A9287]">Overdue Fines</div>
+          <div className={`text-xl font-semibold font-mono mt-0.5 ${
             totalFineAccrued > 0 ? 'text-rose-700' : 'text-[#202721]'
           }`}>
             ₦{totalFineAccrued}
           </div>
-          <div className="text-[11px] text-[#5A6258] mt-0.5">
+          <div className="text-[10px] text-[#5A6258] mt-0.5">
             Rate: ₦{INSTITUTION_INFO.dailyFineRate}/day overdue
           </div>
         </div>
 
-        <div className={`p-4 rounded-md border shadow-2xs ${
+        <div className={`p-3.5 rounded-lg border shadow-2xs ${
           isClearedForExam
             ? 'bg-[#EAF0EC] border-[#245747]/20 text-[#1B4236]'
             : 'bg-rose-50 border-rose-200 text-rose-800'
         }`}>
-          <div className="text-[11px] font-mono uppercase tracking-wider">Exam Clearance</div>
-          <div className="text-base font-semibold mt-1 flex items-center gap-1.5">
+          <div className="text-[10px] font-mono uppercase tracking-wider">Exam Clearance</div>
+          <div className="text-sm font-semibold mt-0.5 flex items-center gap-1.5">
             {isClearedForExam ? (
               <>
                 <CheckCircle2 className="w-4 h-4 text-[#245747] stroke-[1.75]" />
@@ -214,7 +219,7 @@ export const StudentPortalPage: React.FC = () => {
               </>
             )}
           </div>
-          <div className="text-[11px] mt-0.5 opacity-90">
+          <div className="text-[10px] mt-0.5 opacity-90">
             {isClearedForExam ? 'Eligible for semester exams' : 'Return items before clearance'}
           </div>
         </div>
@@ -223,7 +228,7 @@ export const StudentPortalPage: React.FC = () => {
       {/* TAB 1: MY ACTIVE LOANS */}
       {activeTab === 'my_loans' && (
         <div className="space-y-4">
-          <div className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs overflow-hidden">
+          <div className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs overflow-hidden">
             <div className="p-4 bg-[#F7F6F2] border-b border-[#E5E4DE] flex items-center justify-between">
               <div>
                 <h3 className="font-serif text-base font-semibold text-[#202721]">
@@ -249,7 +254,7 @@ export const StudentPortalPage: React.FC = () => {
                 </p>
                 <button
                   onClick={() => setActiveTab('opac')}
-                  className="mt-4 px-3.5 py-1.5 text-xs font-medium bg-[#245747] text-white rounded-md"
+                  className="mt-4 px-3.5 py-1.5 text-xs font-medium bg-[#245747] text-white rounded-md cursor-pointer"
                 >
                   Browse Catalogue
                 </button>
@@ -293,7 +298,7 @@ export const StudentPortalPage: React.FC = () => {
                       <div className="flex items-center gap-2 shrink-0">
                         <button
                           onClick={() => renewLoan(loan.id)}
-                          className="px-3 py-1.5 text-xs font-medium bg-white hover:bg-stone-50 text-[#202721] rounded-md border border-[#E5E4DE] shadow-2xs transition-colors flex items-center gap-1.5"
+                          className="px-3 py-1.5 text-xs font-medium bg-white hover:bg-stone-50 text-[#202721] rounded-md border border-[#E5E4DE] shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
                         >
                           <RotateCw className="w-3.5 h-3.5 text-[#245747] stroke-[1.75]" />
                           <span>Request Renewal (+14d)</span>
@@ -311,7 +316,7 @@ export const StudentPortalPage: React.FC = () => {
       {/* TAB 2: OPAC CATALOGUE */}
       {activeTab === 'opac' && (
         <div className="space-y-4">
-          <div className="bg-white p-3 rounded-md border border-[#E5E4DE] shadow-2xs flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+          <div className="bg-white p-3 rounded-lg border border-[#E5E4DE] shadow-2xs flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
             <div className="relative flex-1 max-w-md">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8A9287] stroke-[1.75]" />
               <input
@@ -319,8 +324,16 @@ export const StudentPortalPage: React.FC = () => {
                 value={catalogQuery}
                 onChange={(e) => setCatalogQuery(e.target.value)}
                 placeholder="Search Computer Science books, authors, ISBN..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#F7F6F2] hover:bg-[#F2F0E8] focus:bg-white text-[#202721] rounded-md border border-[#E5E4DE] focus:outline-none focus:border-[#245747]"
+                className="w-full pl-8 pr-8 py-1.5 text-xs bg-[#F7F6F2] hover:bg-[#F2F0E8] focus:bg-white text-[#202721] rounded-md border border-[#E5E4DE] focus:outline-none focus:border-[#245747]"
               />
+              {catalogQuery && (
+                <button
+                  onClick={() => setCatalogQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+                >
+                  <X className="w-3.5 h-3.5 stroke-[1.75]" />
+                </button>
+              )}
             </div>
 
             <select
@@ -343,7 +356,7 @@ export const StudentPortalPage: React.FC = () => {
               return (
                 <div
                   key={book.id}
-                  className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs p-4 flex flex-col justify-between"
+                  className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs p-4 flex flex-col justify-between hover:border-stone-400 transition-colors"
                 >
                   <div>
                     <div className="flex items-center justify-between text-xs pb-2 border-b border-[#E5E4DE]">
@@ -418,9 +431,9 @@ export const StudentPortalPage: React.FC = () => {
             {/* Card Body */}
             <div className="p-6 space-y-5 bg-[#FBFBFA]">
               <div className="flex items-start gap-4">
-                <div className="w-20 h-24 rounded bg-stone-200 border border-stone-300 flex flex-col items-center justify-center text-stone-500 shrink-0">
+                <div className="w-20 h-24 rounded-lg bg-stone-200 border border-stone-300 flex flex-col items-center justify-center text-stone-500 shrink-0">
                   <GraduationCap className="w-8 h-8 text-stone-400 stroke-[1.5]" />
-                  <span className="text-[9px] font-mono mt-1 uppercase text-stone-500">Student</span>
+                  <span className="text-[9px] font-mono mt-1 uppercase text-stone-500 font-semibold">Student</span>
                 </div>
 
                 <div className="space-y-1.5 min-w-0 flex-1 text-xs">
@@ -454,8 +467,8 @@ export const StudentPortalPage: React.FC = () => {
               </div>
 
               {/* Barcode Simulation */}
-              <div className="p-3 bg-white rounded border border-[#E5E4DE] text-center space-y-1">
-                <div className="font-mono text-[10px] text-[#8A9287] tracking-widest">
+              <div className="p-3 bg-white rounded-lg border border-[#E5E4DE] text-center space-y-1">
+                <div className="font-mono text-[10px] text-[#8A9287] tracking-widest select-none">
                   || | ||| || |||| | ||||| ||| || ||| || |||
                 </div>
                 <div className="text-[10px] font-mono text-[#5A6258]">
@@ -473,7 +486,7 @@ export const StudentPortalPage: React.FC = () => {
 
       {/* TAB 4: LOAN HISTORY */}
       {activeTab === 'history' && (
-        <div className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs overflow-hidden">
+        <div className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs overflow-hidden">
           <div className="p-4 bg-[#F7F6F2] border-b border-[#E5E4DE]">
             <h3 className="font-serif text-base font-semibold text-[#202721]">
               My Circulation History Archive

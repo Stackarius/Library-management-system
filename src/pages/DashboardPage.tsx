@@ -18,6 +18,8 @@ import {
   Bookmark,
   ChevronRight,
   ExternalLink,
+  ShieldCheck,
+  Sparkles,
 } from 'lucide-react';
 
 interface DashboardPageProps {
@@ -68,6 +70,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   ];
   const maxWeekly = Math.max(...weeklyThroughput.map((w) => w.total));
 
+  // Utilization calculation
+  const collectionUtilization = Math.round(
+    (stats.activeLoansCount / (stats.totalPhysicalBooks || 1)) * 100
+  );
+
   return (
     <div className="space-y-6">
       {/* Top Editorial Header & Operational Actions */}
@@ -75,22 +82,22 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         <div>
           <div className="flex items-center gap-2 text-xs font-mono text-[#5A6258] uppercase tracking-wider">
             <span>{INSTITUTION_INFO.shortName}</span>
-            <span>·</span>
+            <span className="text-stone-300">·</span>
             <span>{INSTITUTION_INFO.department}</span>
-            <span>·</span>
+            <span className="text-stone-300">·</span>
             <span className="text-[#245747] font-semibold">{INSTITUTION_INFO.academicSession}</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-medium text-[#202721] tracking-tight mt-1">
+          <h1 className="font-serif text-2xl font-medium text-[#202721] tracking-tight mt-1">
             Operations & Circulation Overview
           </h1>
-          <p className="text-xs sm:text-sm text-[#5A6258] mt-1 max-w-2xl">
-            Departmental library status ledger. Logged in as{' '}
+          <p className="text-xs sm:text-sm text-[#5A6258] mt-1 max-w-2xl leading-relaxed">
+            Departmental library status ledger. Operating as{' '}
             <span className="font-medium text-[#202721]">{currentUser?.name}</span> ({currentUser?.role})
           </p>
         </div>
 
         {/* Primary and secondary operational actions */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={onIssueNewBook}
             className="px-3.5 py-1.5 text-xs font-medium bg-[#245747] hover:bg-[#1B4236] text-white rounded-md shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
@@ -115,114 +122,193 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
       </div>
 
-      {/* Reference bar */}
-      <div className="bg-white rounded-md border border-[#E5E4DE] px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs text-[#5A6258]">
-        <div className="flex items-center gap-2 font-mono text-[11px]">
-          <Clock className="w-3.5 h-3.5 text-[#245747] stroke-[1.75]" />
-          <span>System Date: <strong className="text-[#202721] font-semibold">{SYSTEM_CURRENT_DATE}</strong></span>
+      {/* Institutional Reference Bar */}
+      <div className="bg-white rounded-lg border border-[#E5E4DE] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs text-[#5A6258]">
+        <div className="flex items-center gap-3 font-mono text-[11px]">
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-[#245747] stroke-[1.75]" />
+            <span>System Date: <strong className="text-[#202721] font-semibold">{SYSTEM_CURRENT_DATE}</strong></span>
+          </div>
           <span className="text-stone-300">|</span>
-          <span>Semester: <strong className="text-[#202721] font-semibold">{INSTITUTION_INFO.semester}</strong></span>
+          <div>
+            Semester: <strong className="text-[#202721] font-semibold">{INSTITUTION_INFO.semester}</strong>
+          </div>
         </div>
         <div className="text-[11px] font-mono flex items-center gap-3">
-          <span>Daily Fine: <strong className="text-[#202721]">₦{INSTITUTION_INFO.dailyFineRate}/day</strong></span>
+          <div>
+            Standard Fine: <strong className="text-[#202721]">₦{INSTITUTION_INFO.dailyFineRate}/day</strong>
+          </div>
           <span className="text-stone-300">|</span>
-          <span>Max Loan Quota: <strong className="text-[#202721]">{INSTITUTION_INFO.maxBorrowLimit} books</strong></span>
+          <div>
+            Borrower Quota: <strong className="text-[#202721]">{INSTITUTION_INFO.maxBorrowLimit} books max</strong>
+          </div>
         </div>
       </div>
 
-      {/* Metric Modules (Linear / Stripe style compact tiles) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {/* Module 1: Catalog Titles */}
-        <div className="bg-white p-4 rounded-md border border-[#E5E4DE] shadow-2xs">
-          <div className="flex items-center justify-between text-[#5A6258] mb-1.5">
-            <span className="text-[11px] font-mono uppercase tracking-wider">Titles</span>
-            <BookOpen className="w-3.5 h-3.5 text-[#245747] stroke-[1.75]" />
+      {/* Asymmetric High-Hierarchy Metrics Section (Replaces repetitive 5-box card grid) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Focal Module: Real-time Circulation Throughput & Health */}
+        <div className="lg:col-span-5 bg-[#202721] text-white rounded-lg p-5 flex flex-col justify-between border border-[#202721] shadow-2xs relative overflow-hidden">
+          {/* Subtle watermark grid */}
+          <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px]" />
+
+          <div className="relative z-10">
+            <div className="flex items-center justify-between text-stone-300">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-stone-300">
+                Active Circulation Pulse
+              </span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#245747]/80 text-emerald-200 border border-emerald-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live Desk
+              </span>
+            </div>
+
+            <div className="mt-3 flex items-baseline gap-3">
+              <div className="text-3xl sm:text-4xl font-semibold font-mono tracking-tight text-white tabular-nums">
+                {stats.activeLoansCount}
+              </div>
+              <div className="text-xs text-stone-300">
+                curriculum books currently in circulation
+              </div>
+            </div>
+
+            {/* Collection Utilization Progress */}
+            <div className="mt-4 space-y-1.5">
+              <div className="flex items-center justify-between text-xs text-stone-300">
+                <span>Holdings Utilization</span>
+                <span className="font-mono text-white font-medium">{collectionUtilization}%</span>
+              </div>
+              <div className="h-1.5 w-full bg-stone-800 rounded-full overflow-hidden">
+                <div
+                  style={{ width: `${Math.min(collectionUtilization, 100)}%` }}
+                  className="h-full bg-emerald-400 rounded-full"
+                />
+              </div>
+            </div>
           </div>
-          <div className="text-2xl font-semibold text-[#202721] font-mono tabular-nums">
-            {stats.totalTitles}
-          </div>
-          <div className="text-[11px] text-[#5A6258] mt-1 truncate">
-            {stats.totalPhysicalBooks} physical volumes
+
+          <div className="relative z-10 pt-4 mt-4 border-t border-stone-800 grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <div className="text-[10px] font-mono uppercase text-stone-400">Total Physical Volumes</div>
+              <div className="font-mono text-stone-100 font-medium text-sm mt-0.5">
+                {stats.totalPhysicalBooks} copies
+              </div>
+            </div>
+            <div>
+              <div className="text-[10px] font-mono uppercase text-stone-400">Turnaround Rate</div>
+              <div className="font-mono text-emerald-300 font-medium text-sm mt-0.5">
+                85.4% on-time
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Module 2: Active Loans */}
-        <div className="bg-white p-4 rounded-md border border-[#E5E4DE] shadow-2xs">
-          <div className="flex items-center justify-between text-[#5A6258] mb-1.5">
-            <span className="text-[11px] font-mono uppercase tracking-wider">On Loan</span>
-            <ArrowLeftRight className="w-3.5 h-3.5 text-[#245747] stroke-[1.75]" />
+        {/* 4 Secondary Operations Metric Tiles (2x2 Grid) */}
+        <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-2 gap-3">
+          {/* Catalog Titles */}
+          <div className="bg-white p-4 rounded-lg border border-[#E5E4DE] shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#5A6258] mb-1.5">
+              <span className="text-[11px] font-mono uppercase tracking-wider">Catalog Titles</span>
+              <BookOpen className="w-3.5 h-3.5 text-[#245747] stroke-[1.75]" />
+            </div>
+            <div>
+              <div className="text-2xl font-semibold text-[#202721] font-mono tabular-nums">
+                {stats.totalTitles}
+              </div>
+              <div className="text-[11px] text-[#5A6258] mt-1 flex items-center justify-between">
+                <span>COM 111 – COM 299</span>
+                <button
+                  onClick={() => setActivePage('books')}
+                  className="text-[#245747] font-medium hover:underline text-[11px]"
+                >
+                  View catalogue →
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="text-2xl font-semibold text-[#202721] font-mono tabular-nums">
-            {stats.activeLoansCount}
-          </div>
-          <div className="text-[11px] text-[#5A6258] mt-1">
-            {Math.round((stats.activeLoansCount / (stats.totalPhysicalBooks || 1)) * 100)}% utilization
-          </div>
-        </div>
 
-        {/* Module 3: Available Copies */}
-        <div className="bg-white p-4 rounded-md border border-[#E5E4DE] shadow-2xs">
-          <div className="flex items-center justify-between text-[#5A6258] mb-1.5">
-            <span className="text-[11px] font-mono uppercase tracking-wider">Available</span>
-            <Layers className="w-3.5 h-3.5 text-[#245747] stroke-[1.75]" />
+          {/* Immediate Availability */}
+          <div className="bg-white p-4 rounded-lg border border-[#E5E4DE] shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#5A6258] mb-1.5">
+              <span className="text-[11px] font-mono uppercase tracking-wider">Ready on Shelves</span>
+              <Layers className="w-3.5 h-3.5 text-[#245747] stroke-[1.75]" />
+            </div>
+            <div>
+              <div className="text-2xl font-semibold text-[#202721] font-mono tabular-nums">
+                {stats.availableCopiesTotal}
+              </div>
+              <div className="text-[11px] text-[#245747] font-medium mt-1">
+                Available for instant checkout
+              </div>
+            </div>
           </div>
-          <div className="text-2xl font-semibold text-[#202721] font-mono tabular-nums">
-            {stats.availableCopiesTotal}
-          </div>
-          <div className="text-[11px] text-[#245747] font-medium mt-1">
-            Ready on shelves
-          </div>
-        </div>
 
-        {/* Module 4: Overdue Defaulters */}
-        <div className={`p-4 rounded-md border shadow-2xs ${
-          stats.overdueLoansCount > 0
-            ? 'bg-white border-rose-200'
-            : 'bg-white border-[#E5E4DE]'
-        }`}>
-          <div className="flex items-center justify-between text-[#5A6258] mb-1.5">
-            <span className="text-[11px] font-mono uppercase tracking-wider">Overdue</span>
-            <AlertTriangle className={`w-3.5 h-3.5 stroke-[1.75] ${
-              stats.overdueLoansCount > 0 ? 'text-rose-600' : 'text-[#5A6258]'
-            }`} />
-          </div>
-          <div className={`text-2xl font-semibold font-mono tabular-nums ${
-            stats.overdueLoansCount > 0 ? 'text-rose-700' : 'text-[#202721]'
+          {/* Overdue Attention */}
+          <div className={`p-4 rounded-lg border shadow-2xs flex flex-col justify-between ${
+            stats.overdueLoansCount > 0
+              ? 'bg-[#FDF8F7] border-rose-200'
+              : 'bg-white border-[#E5E4DE]'
           }`}>
-            {stats.overdueLoansCount}
+            <div className="flex items-center justify-between text-[#5A6258] mb-1.5">
+              <span className="text-[11px] font-mono uppercase tracking-wider">Overdue Loans</span>
+              <AlertTriangle className={`w-3.5 h-3.5 stroke-[1.75] ${
+                stats.overdueLoansCount > 0 ? 'text-rose-600' : 'text-[#5A6258]'
+              }`} />
+            </div>
+            <div>
+              <div className={`text-2xl font-semibold font-mono tabular-nums ${
+                stats.overdueLoansCount > 0 ? 'text-rose-700' : 'text-[#202721]'
+              }`}>
+                {stats.overdueLoansCount}
+              </div>
+              <div className="text-[11px] text-rose-700 font-mono mt-1 font-medium flex items-center justify-between">
+                <span>₦{stats.totalFineAccrued} accrued fines</span>
+                <button
+                  onClick={() => setActivePage('circulation')}
+                  className="hover:underline font-sans text-[11px]"
+                >
+                  Manage →
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="text-[11px] text-rose-700 font-mono mt-1 font-medium">
-            ₦{stats.totalFineAccrued} accrued fines
-          </div>
-        </div>
 
-        {/* Module 5: Registered Readers */}
-        <div className="bg-white p-4 rounded-md border border-[#E5E4DE] shadow-2xs">
-          <div className="flex items-center justify-between text-[#5A6258] mb-1.5">
-            <span className="text-[11px] font-mono uppercase tracking-wider">Readers</span>
-            <Users className="w-3.5 h-3.5 text-[#245747] stroke-[1.75]" />
-          </div>
-          <div className="text-2xl font-semibold text-[#202721] font-mono tabular-nums">
-            {stats.totalStudents}
-          </div>
-          <div className="text-[11px] text-[#5A6258] mt-1">
-            ND I & ND II cohorts
+          {/* Registered Readers */}
+          <div className="bg-white p-4 rounded-lg border border-[#E5E4DE] shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[#5A6258] mb-1.5">
+              <span className="text-[11px] font-mono uppercase tracking-wider">Active Readers</span>
+              <Users className="w-3.5 h-3.5 text-[#245747] stroke-[1.75]" />
+            </div>
+            <div>
+              <div className="text-2xl font-semibold text-[#202721] font-mono tabular-nums">
+                {stats.totalStudents}
+              </div>
+              <div className="text-[11px] text-[#5A6258] mt-1 flex items-center justify-between">
+                <span>ND I ({stats.nd1StudentsCount}) · ND II ({stats.nd2StudentsCount})</span>
+                <button
+                  onClick={() => setActivePage('students')}
+                  className="text-[#245747] font-medium hover:underline text-[11px]"
+                >
+                  Directory →
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Two Column Grid: Circulation Velocity & Urgent Overdue Defaulters */}
+      {/* Two-Column Midsection: Circulation Velocity & Urgent Overdue Attention List */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Circulation Velocity Chart (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-md border border-[#E5E4DE] shadow-2xs p-5 flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-white rounded-lg border border-[#E5E4DE] shadow-2xs p-5 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pb-2 border-b border-[#E5E4DE]">
               <div>
                 <h3 className="font-serif text-base font-semibold text-[#202721]">
                   Weekly Circulation Velocity
                 </h3>
                 <p className="text-xs text-[#5A6258]">
-                  Volume of daily loans issued vs books checked back in
+                  Volume of daily loans issued vs textbooks checked back into inventory
                 </p>
               </div>
               <div className="flex items-center gap-3 text-xs text-[#5A6258]">
@@ -238,7 +324,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </div>
 
             {/* Velocity Bar Distribution */}
-            <div className="mt-6 space-y-4">
+            <div className="mt-5 space-y-4">
               <div className="grid grid-cols-5 gap-3 items-end h-36 pt-4 border-b border-[#E5E4DE]">
                 {weeklyThroughput.map((item) => {
                   const issueHeight = Math.round((item.issues / maxWeekly) * 100);
@@ -271,11 +357,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <div className="grid grid-cols-3 gap-2 pt-1 text-center">
                 <div className="p-2 rounded-md bg-[#F7F6F2] border border-[#E5E4DE]">
                   <div className="text-[10px] font-mono uppercase text-[#8A9287]">Total Issues</div>
-                  <div className="text-sm font-semibold text-[#202721] font-mono mt-0.5">96</div>
+                  <div className="text-sm font-semibold text-[#202721] font-mono mt-0.5">97</div>
                 </div>
                 <div className="p-2 rounded-md bg-[#F7F6F2] border border-[#E5E4DE]">
                   <div className="text-[10px] font-mono uppercase text-[#8A9287]">Total Returns</div>
-                  <div className="text-sm font-semibold text-[#202721] font-mono mt-0.5">82</div>
+                  <div className="text-sm font-semibold text-[#202721] font-mono mt-0.5">83</div>
                 </div>
                 <div className="p-2 rounded-md bg-[#F7F6F2] border border-[#E5E4DE]">
                   <div className="text-[10px] font-mono uppercase text-[#8A9287]">Turnaround Rate</div>
@@ -287,7 +373,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
 
         {/* Urgent Overdue Attention List (5 cols) */}
-        <div className="lg:col-span-5 bg-white rounded-md border border-[#E5E4DE] shadow-2xs p-5 flex flex-col justify-between">
+        <div className="lg:col-span-5 bg-white rounded-lg border border-[#E5E4DE] shadow-2xs p-5 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E4DE]">
               <div>
@@ -338,9 +424,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
                     <button
                       onClick={() => returnBook({ loanId: loan.id, finePaid: true })}
-                      className="px-2 py-1 text-[11px] font-medium bg-stone-100 hover:bg-stone-200 text-[#202721] rounded border border-stone-200 transition-colors shrink-0"
+                      className="px-2.5 py-1 text-[11px] font-medium bg-[#245747] hover:bg-[#1B4236] text-white rounded transition-colors shrink-0 shadow-2xs"
                     >
-                      Return
+                      Check In
                     </button>
                   </div>
                 ))
@@ -360,10 +446,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
       </div>
 
-      {/* Two Column Section: Recent Circulation Activity Ledger & Collection Breakdown */}
+      {/* Two-Column Lower Section: Recent Circulation Activity Ledger & Collection Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Recent Transactions Ledger (8 cols) */}
-        <div className="lg:col-span-8 bg-white rounded-md border border-[#E5E4DE] shadow-2xs p-5">
+        <div className="lg:col-span-8 bg-white rounded-lg border border-[#E5E4DE] shadow-2xs p-5">
           <div className="flex items-center justify-between pb-3 border-b border-[#E5E4DE]">
             <div>
               <h3 className="font-serif text-base font-semibold text-[#202721]">
@@ -394,7 +480,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               </thead>
               <tbody className="divide-y divide-[#E5E4DE]">
                 {recentLoans.map((loan) => (
-                  <tr key={loan.id} className="hover:bg-stone-50/60 transition-colors">
+                  <tr key={loan.id} className="hover:bg-stone-50/70 transition-colors">
                     <td className="py-2.5 pr-3 max-w-[200px]">
                       <div className="font-medium text-[#202721] truncate">
                         {loan.bookTitle}
@@ -437,7 +523,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                       {loan.status === 'Active' || loan.status === 'Overdue' ? (
                         <button
                           onClick={() => returnBook({ loanId: loan.id, finePaid: true })}
-                          className="px-2 py-1 text-[11px] font-medium text-[#245747] hover:bg-[#EAF0EC] rounded transition-colors"
+                          className="px-2 py-1 text-[11px] font-medium text-[#245747] hover:bg-[#EAF0EC] rounded transition-colors cursor-pointer"
                         >
                           Check In
                         </button>
@@ -453,7 +539,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
 
         {/* Collection Insights by Course & Category (4 cols) */}
-        <div className="lg:col-span-4 bg-white rounded-md border border-[#E5E4DE] shadow-2xs p-5 flex flex-col justify-between">
+        <div className="lg:col-span-4 bg-white rounded-lg border border-[#E5E4DE] shadow-2xs p-5 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#E5E4DE]">
               <div>
@@ -499,7 +585,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
           <div className="pt-4 mt-4 border-t border-[#E5E4DE] text-[11px] text-[#5A6258] flex items-center justify-between">
             <span>Accessioned texts: {stats.totalTitles}</span>
-            <span className="font-mono">COM 111 – COM 299</span>
+            <span className="font-mono text-[10px] text-[#8A9287]">COM 111 – COM 299</span>
           </div>
         </div>
       </div>

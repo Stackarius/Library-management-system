@@ -124,9 +124,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobile, onOpenSearch }) =>
               {isAdmin ? currentInfo.category : 'Student Portal'}
             </span>
           </div>
-          <h1 className="text-sm sm:text-base font-semibold text-[#202721] tracking-tight truncate flex items-center gap-2">
+          <h2 className="text-sm sm:text-base font-semibold text-[#202721] tracking-tight truncate flex items-center gap-2">
             <span>{currentInfo.title}</span>
-          </h1>
+          </h2>
         </div>
       </div>
 

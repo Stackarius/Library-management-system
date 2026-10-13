@@ -21,6 +21,7 @@ import {
   BookMarked,
   CheckCircle2,
   Users,
+  ChevronDown,
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -170,19 +171,27 @@ export const BooksPage: React.FC = () => {
       )
     : [];
 
+  const totalPhysicalCopies = books.reduce((sum, b) => sum + b.totalCopies, 0);
+  const totalAvailableCopies = books.reduce((sum, b) => sum + b.availableCopies, 0);
+  const totalBorrowedCopies = totalPhysicalCopies - totalAvailableCopies;
+
   return (
     <div className="space-y-6">
       {/* Editorial Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#E5E4DE]">
         <div>
-          <div className="text-xs font-mono text-[#5A6258] uppercase tracking-wider">
-            Collection Management
+          <div className="flex items-center gap-2 text-xs font-mono text-[#5A6258] uppercase tracking-wider">
+            <span>Holdings Registry</span>
+            <span className="text-stone-300">·</span>
+            <span>Computer Science</span>
+            <span className="text-stone-300">·</span>
+            <span className="text-[#245747] font-semibold">{books.length} Titles</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-medium text-[#202721] tracking-tight mt-1">
+          <h1 className="font-serif text-2xl font-medium text-[#202721] tracking-tight mt-1">
             Course Textbooks & Research Monographs
           </h1>
           <p className="text-xs sm:text-sm text-[#5A6258] mt-1">
-            Departmental cataloguing desk · {books.length} registered titles · Showing {filteredBooks.length} items
+            Departmental cataloguing desk · {totalPhysicalCopies} physical volumes ({totalAvailableCopies} on shelves, {totalBorrowedCopies} currently on loan)
           </p>
         </div>
 
@@ -195,8 +204,8 @@ export const BooksPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Filter and Control Bar */}
-      <div className="bg-white p-3 rounded-md border border-[#E5E4DE] shadow-2xs flex flex-col md:flex-row gap-2.5 items-stretch md:items-center justify-between">
+      {/* Filter and Control Toolbar */}
+      <div className="bg-white p-3 rounded-lg border border-[#E5E4DE] shadow-2xs flex flex-col md:flex-row gap-2.5 items-stretch md:items-center justify-between">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8A9287] stroke-[1.75]" />
@@ -205,8 +214,16 @@ export const BooksPage: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by title, author, course code (e.g. COM 211), ISBN..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#F7F6F2] hover:bg-[#F2F0E8] focus:bg-white text-[#202721] rounded-md border border-[#E5E4DE] focus:outline-none focus:border-[#245747] focus:ring-1 focus:ring-[#245747] transition-all"
+            className="w-full pl-8 pr-8 py-1.5 text-xs bg-[#F7F6F2] hover:bg-[#F2F0E8] focus:bg-white text-[#202721] rounded-md border border-[#E5E4DE] focus:outline-none focus:border-[#245747] focus:ring-1 focus:ring-[#245747] transition-all"
           />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+            >
+              <X className="w-3.5 h-3.5 stroke-[1.75]" />
+            </button>
+          )}
         </div>
 
         {/* Filter Controls */}
@@ -230,7 +247,7 @@ export const BooksPage: React.FC = () => {
             onChange={(e) => setStockFilter(e.target.value as any)}
             className="px-2.5 py-1.5 text-xs bg-white text-[#202721] rounded-md border border-[#E5E4DE] focus:outline-none focus:border-[#245747] cursor-pointer"
           >
-            <option value="all">All Copies Status</option>
+            <option value="all">All Stock Status</option>
             <option value="in_stock">Available in Stock</option>
             <option value="low">Low Stock (≤ 2 left)</option>
             <option value="out">Checked Out (0 left)</option>
@@ -246,6 +263,11 @@ export const BooksPage: React.FC = () => {
             <option value="year">Sort: Year (Newest)</option>
             <option value="available">Sort: Available Copies</option>
           </select>
+
+          {/* Results count pill */}
+          <span className="hidden xl:inline-block text-[11px] font-mono text-[#5A6258] px-2 py-1 rounded bg-[#F7F6F2] border border-[#E5E4DE]">
+            {filteredBooks.length}/{books.length} titles
+          </span>
 
           {/* View Mode Toggle */}
           <div className="flex items-center rounded-md border border-[#E5E4DE] bg-[#F7F6F2] p-0.5">
@@ -277,7 +299,7 @@ export const BooksPage: React.FC = () => {
 
       {/* Main Content: Table or Grid */}
       {filteredBooks.length === 0 ? (
-        <div className="bg-white rounded-md border border-[#E5E4DE] p-12 text-center">
+        <div className="bg-white rounded-lg border border-[#E5E4DE] p-12 text-center">
           <BookOpen className="w-8 h-8 text-[#8A9287] mx-auto mb-2 stroke-[1.75]" />
           <h3 className="font-serif text-base font-semibold text-[#202721]">
             No Curriculum Books Found
@@ -291,14 +313,14 @@ export const BooksPage: React.FC = () => {
               setSelectedCategory('All Categories');
               setStockFilter('all');
             }}
-            className="mt-4 px-3 py-1.5 text-xs text-[#245747] bg-[#EAF0EC] hover:bg-[#d8e5dc] rounded-md font-medium"
+            className="mt-4 px-3 py-1.5 text-xs text-[#245747] bg-[#EAF0EC] hover:bg-[#d8e5dc] rounded-md font-medium cursor-pointer"
           >
             Reset Filters
           </button>
         </div>
       ) : viewMode === 'table' ? (
         /* High-Density Editorial Table */
-        <div className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs overflow-hidden">
+        <div className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
@@ -410,7 +432,7 @@ export const BooksPage: React.FC = () => {
                           <button
                             onClick={() => setViewingBook(book)}
                             title="View bibliographic record"
-                            className="p-1 text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded"
+                            className="p-1 text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5 stroke-[1.75]" />
                           </button>
@@ -419,7 +441,7 @@ export const BooksPage: React.FC = () => {
                             <button
                               onClick={() => setInspectBorrowersBook(book)}
                               title={`Inspect ${activeLoanCount} active borrowers`}
-                              className="p-1 text-[#245747] hover:bg-[#EAF0EC] rounded"
+                              className="p-1 text-[#245747] hover:bg-[#EAF0EC] rounded cursor-pointer"
                             >
                               <Users className="w-3.5 h-3.5 stroke-[1.75]" />
                             </button>
@@ -428,7 +450,7 @@ export const BooksPage: React.FC = () => {
                           <button
                             onClick={() => handleOpenEdit(book)}
                             title="Edit book details"
-                            className="p-1 text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded"
+                            className="p-1 text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded cursor-pointer"
                           >
                             <Edit className="w-3.5 h-3.5 stroke-[1.75]" />
                           </button>
@@ -436,7 +458,7 @@ export const BooksPage: React.FC = () => {
                           <button
                             onClick={() => setDeletingBook(book)}
                             title="Remove title from catalogue"
-                            className="p-1 text-stone-400 hover:text-rose-700 hover:bg-rose-50 rounded"
+                            className="p-1 text-stone-400 hover:text-rose-700 hover:bg-rose-50 rounded cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5 stroke-[1.75]" />
                           </button>
@@ -460,7 +482,7 @@ export const BooksPage: React.FC = () => {
             return (
               <div
                 key={book.id}
-                className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs p-4 flex flex-col justify-between hover:border-stone-400 transition-colors"
+                className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs p-4 flex flex-col justify-between hover:border-stone-400 transition-colors"
               >
                 <div>
                   <div className="flex items-center justify-between text-xs text-[#5A6258] pb-2 border-b border-[#E5E4DE]">
@@ -496,13 +518,13 @@ export const BooksPage: React.FC = () => {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setViewingBook(book)}
-                      className="px-2 py-1 text-[11px] text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded"
+                      className="px-2 py-1 text-[11px] text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded cursor-pointer"
                     >
                       Details
                     </button>
                     <button
                       onClick={() => handleOpenEdit(book)}
-                      className="px-2 py-1 text-[11px] text-[#245747] hover:bg-[#EAF0EC] rounded font-medium"
+                      className="px-2 py-1 text-[11px] text-[#245747] hover:bg-[#EAF0EC] rounded font-medium cursor-pointer"
                     >
                       Edit
                     </button>
@@ -532,7 +554,7 @@ export const BooksPage: React.FC = () => {
                   setIsAddOpen(false);
                   setEditingBook(null);
                 }}
-                className="text-stone-400 hover:text-stone-700 p-1"
+                className="text-stone-400 hover:text-stone-700 p-1 cursor-pointer"
               >
                 <X className="w-4 h-4 stroke-[1.75]" />
               </button>
@@ -716,7 +738,7 @@ export const BooksPage: React.FC = () => {
                     setIsAddOpen(false);
                     setEditingBook(null);
                   }}
-                  className="px-3.5 py-1.5 text-xs text-[#5A6258] hover:text-[#202721] rounded-md"
+                  className="px-3.5 py-1.5 text-xs text-[#5A6258] hover:text-[#202721] rounded-md cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -747,7 +769,7 @@ export const BooksPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setViewingBook(null)}
-                className="text-stone-400 hover:text-stone-700 p-1"
+                className="text-stone-400 hover:text-stone-700 p-1 cursor-pointer"
               >
                 <X className="w-4 h-4 stroke-[1.75]" />
               </button>
@@ -799,7 +821,7 @@ export const BooksPage: React.FC = () => {
                     setInspectBorrowersBook(viewingBook);
                     setViewingBook(null);
                   }}
-                  className="text-xs font-medium text-[#245747] hover:underline"
+                  className="text-xs font-medium text-[#245747] hover:underline cursor-pointer"
                 >
                   View Borrowers →
                 </button>
@@ -809,7 +831,7 @@ export const BooksPage: React.FC = () => {
             <div className="p-3 border-t border-[#E5E4DE] bg-stone-50 flex items-center justify-end">
               <button
                 onClick={() => setViewingBook(null)}
-                className="px-3 py-1.5 text-xs text-[#202721] bg-white border border-[#E5E4DE] rounded-md hover:bg-stone-100"
+                className="px-3 py-1.5 text-xs text-[#202721] bg-white border border-[#E5E4DE] rounded-md hover:bg-stone-100 cursor-pointer"
               >
                 Close
               </button>
@@ -833,7 +855,7 @@ export const BooksPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setInspectBorrowersBook(null)}
-                className="text-stone-400 hover:text-stone-700 p-1"
+                className="text-stone-400 hover:text-stone-700 p-1 cursor-pointer"
               >
                 <X className="w-4 h-4 stroke-[1.75]" />
               </button>
@@ -877,7 +899,7 @@ export const BooksPage: React.FC = () => {
             <div className="p-3 border-t border-[#E5E4DE] bg-stone-50 flex items-center justify-end">
               <button
                 onClick={() => setInspectBorrowersBook(null)}
-                className="px-3 py-1.5 text-xs text-[#202721] bg-white border border-[#E5E4DE] rounded-md hover:bg-stone-100"
+                className="px-3 py-1.5 text-xs text-[#202721] bg-white border border-[#E5E4DE] rounded-md hover:bg-stone-100 cursor-pointer"
               >
                 Done
               </button>

@@ -22,6 +22,7 @@ import {
   List,
   ShieldCheck,
   FileCheck,
+  ArrowLeftRight,
 } from 'lucide-react';
 
 const LEVELS: StudentLevel[] = ['ND I', 'ND II', 'HND I', 'HND II'];
@@ -137,19 +138,35 @@ export const StudentsPage: React.FC = () => {
   const viewingStudentFines = viewingStudentOverdue.reduce((sum, l) => sum + (l.finePaid ? 0 : l.fineAmount), 0);
   const isClearedForExam = viewingStudentLoans.length === 0 && viewingStudentFines === 0;
 
+  // Cohort summary statistics
+  const nd1Count = students.filter((s) => s.level === 'ND I').length;
+  const nd2Count = students.filter((s) => s.level === 'ND II').length;
+  const clearedCount = students.filter((s) => {
+    const sLoans = getStudentLoans(s.id);
+    return sLoans.length === 0;
+  }).length;
+  const overdueBorrowersCount = students.filter((s) => {
+    const sLoans = getStudentLoans(s.id);
+    return sLoans.some((l) => l.status === 'Overdue');
+  }).length;
+
   return (
     <div className="space-y-6">
       {/* Editorial Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#E5E4DE]">
         <div>
-          <div className="text-xs font-mono text-[#5A6258] uppercase tracking-wider">
-            Reader Registry
+          <div className="flex items-center gap-2 text-xs font-mono text-[#5A6258] uppercase tracking-wider">
+            <span>Reader Registry</span>
+            <span className="text-stone-300">·</span>
+            <span>Computer Science</span>
+            <span className="text-stone-300">·</span>
+            <span className="text-[#245747] font-semibold">{students.length} Readers</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-medium text-[#202721] tracking-tight mt-1">
+          <h1 className="font-serif text-2xl font-medium text-[#202721] tracking-tight mt-1">
             Student Reader Directory
           </h1>
           <p className="text-xs sm:text-sm text-[#5A6258] mt-1">
-            Registered ND I and ND II borrowers · {students.length} students enrolled · Max loan quota: {INSTITUTION_INFO.maxBorrowLimit} books
+            Registered ND I and ND II student borrower profiles · Max loan quota: {INSTITUTION_INFO.maxBorrowLimit} books
           </p>
         </div>
 
@@ -162,8 +179,55 @@ export const StudentsPage: React.FC = () => {
         </button>
       </div>
 
+      {/* Cohort Metric Ribbon */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-white p-3 rounded-lg border border-[#E5E4DE] shadow-2xs">
+          <div className="text-[10px] font-mono uppercase text-[#8A9287]">Enrolled Readers</div>
+          <div className="text-lg font-semibold font-mono text-[#202721] mt-0.5">
+            {students.length}
+          </div>
+          <div className="text-[10px] text-[#5A6258] mt-0.5">
+            ND I: {nd1Count} · ND II: {nd2Count}
+          </div>
+        </div>
+
+        <div className="bg-white p-3 rounded-lg border border-[#E5E4DE] shadow-2xs">
+          <div className="text-[10px] font-mono uppercase text-[#8A9287]">Active Borrowers</div>
+          <div className="text-lg font-semibold font-mono text-[#245747] mt-0.5">
+            {students.length - clearedCount}
+          </div>
+          <div className="text-[10px] text-[#5A6258] mt-0.5">
+            Hold active curriculum books
+          </div>
+        </div>
+
+        <div className="bg-white p-3 rounded-lg border border-[#E5E4DE] shadow-2xs">
+          <div className="text-[10px] font-mono uppercase text-[#8A9287]">Exam Clearance Ready</div>
+          <div className="text-lg font-semibold font-mono text-emerald-700 mt-0.5">
+            {clearedCount}
+          </div>
+          <div className="text-[10px] text-[#5A6258] mt-0.5">
+            Zero books & zero fines
+          </div>
+        </div>
+
+        <div className={`p-3 rounded-lg border shadow-2xs ${
+          overdueBorrowersCount > 0 ? 'bg-[#FDF8F7] border-rose-200' : 'bg-white border-[#E5E4DE]'
+        }`}>
+          <div className="text-[10px] font-mono uppercase text-[#8A9287]">Overdue Defaulters</div>
+          <div className={`text-lg font-semibold font-mono mt-0.5 ${
+            overdueBorrowersCount > 0 ? 'text-rose-700' : 'text-[#202721]'
+          }`}>
+            {overdueBorrowersCount}
+          </div>
+          <div className="text-[10px] text-rose-700 font-mono mt-0.5">
+            Subject to daily fine rate
+          </div>
+        </div>
+      </div>
+
       {/* Control Bar */}
-      <div className="bg-white p-3 rounded-md border border-[#E5E4DE] shadow-2xs flex flex-col md:flex-row gap-2.5 items-stretch md:items-center justify-between">
+      <div className="bg-white p-3 rounded-lg border border-[#E5E4DE] shadow-2xs flex flex-col md:flex-row gap-2.5 items-stretch md:items-center justify-between">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8A9287] stroke-[1.75]" />
@@ -172,8 +236,16 @@ export const StudentsPage: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by student name, matriculation no (FPE/CS/...), or email..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#F7F6F2] hover:bg-[#F2F0E8] focus:bg-white text-[#202721] rounded-md border border-[#E5E4DE] focus:outline-none focus:border-[#245747] focus:ring-1 focus:ring-[#245747] transition-all"
+            className="w-full pl-8 pr-8 py-1.5 text-xs bg-[#F7F6F2] hover:bg-[#F2F0E8] focus:bg-white text-[#202721] rounded-md border border-[#E5E4DE] focus:outline-none focus:border-[#245747] focus:ring-1 focus:ring-[#245747] transition-all"
           />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+            >
+              <X className="w-3.5 h-3.5 stroke-[1.75]" />
+            </button>
+          )}
         </div>
 
         {/* Filter Controls */}
@@ -202,6 +274,11 @@ export const StudentsPage: React.FC = () => {
             <option value="Active">Active Readers</option>
             <option value="Suspended">Suspended Borrowers</option>
           </select>
+
+          {/* Results count badge */}
+          <span className="hidden xl:inline-block text-[11px] font-mono text-[#5A6258] px-2 py-1 rounded bg-[#F7F6F2] border border-[#E5E4DE]">
+            {filteredStudents.length}/{students.length} readers
+          </span>
 
           {/* View Mode Toggle */}
           <div className="flex items-center rounded-md border border-[#E5E4DE] bg-[#F7F6F2] p-0.5">
@@ -233,7 +310,7 @@ export const StudentsPage: React.FC = () => {
 
       {/* Main Table or Card View */}
       {filteredStudents.length === 0 ? (
-        <div className="bg-white rounded-md border border-[#E5E4DE] p-12 text-center">
+        <div className="bg-white rounded-lg border border-[#E5E4DE] p-12 text-center">
           <Users className="w-8 h-8 text-[#8A9287] mx-auto mb-2 stroke-[1.75]" />
           <h3 className="font-serif text-base font-semibold text-[#202721]">
             No Students Found
@@ -241,9 +318,19 @@ export const StudentsPage: React.FC = () => {
           <p className="text-xs text-[#5A6258] mt-1 max-w-sm mx-auto">
             No registered reader profiles match your filter. Try adjusting the search query or level selector.
           </p>
+          <button
+            onClick={() => {
+              setSearchQuery('');
+              setLevelFilter('All Levels');
+              setStatusFilter('All Status');
+            }}
+            className="mt-4 px-3 py-1.5 text-xs text-[#245747] bg-[#EAF0EC] hover:bg-[#d8e5dc] rounded-md font-medium cursor-pointer"
+          >
+            Reset Filters
+          </button>
         </div>
       ) : viewMode === 'table' ? (
-        <div className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs overflow-hidden">
+        <div className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
@@ -251,8 +338,8 @@ export const StudentsPage: React.FC = () => {
                   <th className="py-2.5 px-4 font-semibold">Student Name & Matric</th>
                   <th className="py-2.5 px-4 font-semibold">Programme Level</th>
                   <th className="py-2.5 px-4 font-semibold">Contact Email & Phone</th>
-                  <th className="py-2.5 px-4 font-semibold">Active Loans Quota</th>
-                  <th className="py-2.5 px-4 font-semibold">Account Status</th>
+                  <th className="py-2.5 px-4 font-semibold">Borrowing Quota</th>
+                  <th className="py-2.5 px-4 font-semibold">Exam Clearance</th>
                   <th className="py-2.5 px-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
@@ -261,16 +348,24 @@ export const StudentsPage: React.FC = () => {
                   const studentActiveLoans = getStudentLoans(student.id);
                   const hasOverdue = studentActiveLoans.some((l) => l.status === 'Overdue');
                   const quotaUsed = studentActiveLoans.length;
+                  const isCleared = quotaUsed === 0;
 
                   return (
                     <tr key={student.id} className="hover:bg-stone-50/70 transition-colors">
                       {/* Name & Matric */}
                       <td className="py-3 px-4">
-                        <div className="font-medium text-[#202721]">
-                          {student.fullName}
-                        </div>
-                        <div className="text-[11px] font-mono text-[#5A6258] mt-0.5">
-                          {student.matricNo}
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-[#EAF0EC] text-[#1B4236] font-semibold text-[11px] flex items-center justify-center shrink-0 border border-[#245747]/20">
+                            {student.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('')}
+                          </div>
+                          <div>
+                            <div className="font-medium text-[#202721]">
+                              {student.fullName}
+                            </div>
+                            <div className="text-[11px] font-mono text-[#5A6258] mt-0.5">
+                              {student.matricNo}
+                            </div>
+                          </div>
                         </div>
                       </td>
 
@@ -296,30 +391,43 @@ export const StudentsPage: React.FC = () => {
 
                       {/* Loans Quota */}
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-2">
                           <span className={`font-mono text-xs font-semibold ${
                             hasOverdue ? 'text-rose-700' : 'text-[#202721]'
                           }`}>
-                            {quotaUsed} / {INSTITUTION_INFO.maxBorrowLimit}
+                            {quotaUsed}/{INSTITUTION_INFO.maxBorrowLimit}
                           </span>
                           <span className="text-[10px] text-[#5A6258]">books</span>
                         </div>
-                        {hasOverdue && (
-                          <div className="text-[10px] text-rose-700 font-mono mt-0.5 font-medium">
-                            Has overdue loans
-                          </div>
-                        )}
+                        <div className="w-20 h-1.5 bg-stone-100 rounded-full mt-1 overflow-hidden">
+                          <div
+                            style={{ width: `${(quotaUsed / INSTITUTION_INFO.maxBorrowLimit) * 100}%` }}
+                            className={`h-full rounded-full ${
+                              hasOverdue
+                                ? 'bg-rose-600'
+                                : quotaUsed >= INSTITUTION_INFO.maxBorrowLimit
+                                ? 'bg-amber-600'
+                                : 'bg-[#245747]'
+                            }`}
+                          />
+                        </div>
                       </td>
 
-                      {/* Status */}
+                      {/* Exam Clearance */}
                       <td className="py-3 px-4">
-                        {student.status === 'Active' ? (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-[#EAF0EC] text-[#1B4236] border border-[#245747]/20">
-                            Active
+                        {hasOverdue ? (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                            <AlertTriangle className="w-3 h-3 stroke-[1.75]" />
+                            <span>Overdue Late</span>
+                          </span>
+                        ) : isCleared ? (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-[#EAF0EC] text-[#1B4236] border border-[#245747]/20">
+                            <CheckCircle2 className="w-3 h-3 stroke-[1.75]" />
+                            <span>Cleared</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-200">
-                            Suspended
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-stone-100 text-stone-700 border border-stone-200">
+                            {quotaUsed} on loan
                           </span>
                         )}
                       </td>
@@ -330,7 +438,7 @@ export const StudentsPage: React.FC = () => {
                           <button
                             onClick={() => setViewingStudent(student)}
                             title="Inspect student dossier & clearance"
-                            className="p-1 text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded"
+                            className="p-1 text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5 stroke-[1.75]" />
                           </button>
@@ -338,7 +446,7 @@ export const StudentsPage: React.FC = () => {
                           <button
                             onClick={() => handleOpenEdit(student)}
                             title="Edit student profile"
-                            className="p-1 text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded"
+                            className="p-1 text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded cursor-pointer"
                           >
                             <Edit className="w-3.5 h-3.5 stroke-[1.75]" />
                           </button>
@@ -346,7 +454,7 @@ export const StudentsPage: React.FC = () => {
                           <button
                             onClick={() => setDeletingStudent(student)}
                             title="Remove reader record"
-                            className="p-1 text-stone-400 hover:text-rose-700 hover:bg-rose-50 rounded"
+                            className="p-1 text-stone-400 hover:text-rose-700 hover:bg-rose-50 rounded cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5 stroke-[1.75]" />
                           </button>
@@ -365,11 +473,12 @@ export const StudentsPage: React.FC = () => {
           {filteredStudents.map((student) => {
             const studentActiveLoans = getStudentLoans(student.id);
             const hasOverdue = studentActiveLoans.some((l) => l.status === 'Overdue');
+            const isCleared = studentActiveLoans.length === 0;
 
             return (
               <div
                 key={student.id}
-                className="bg-white rounded-md border border-[#E5E4DE] shadow-2xs p-4 flex flex-col justify-between hover:border-stone-400 transition-colors"
+                className="bg-white rounded-lg border border-[#E5E4DE] shadow-2xs p-4 flex flex-col justify-between hover:border-stone-400 transition-colors"
               >
                 <div>
                   <div className="flex items-center justify-between text-xs pb-2 border-b border-[#E5E4DE]">
@@ -377,19 +486,28 @@ export const StudentsPage: React.FC = () => {
                       {student.level}
                     </span>
                     <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
-                      student.status === 'Active'
-                        ? 'bg-[#EAF0EC] text-[#1B4236]'
-                        : 'bg-rose-50 text-rose-700'
+                      hasOverdue
+                        ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                        : isCleared
+                        ? 'bg-[#EAF0EC] text-[#1B4236] border border-[#245747]/20'
+                        : 'bg-stone-100 text-stone-700'
                     }`}>
-                      {student.status}
+                      {hasOverdue ? 'Overdue' : isCleared ? 'Cleared' : `${studentActiveLoans.length} Loans`}
                     </span>
                   </div>
 
-                  <h3 className="font-medium text-sm text-[#202721] mt-2.5">
-                    {student.fullName}
-                  </h3>
-                  <div className="font-mono text-xs text-[#5A6258] mt-0.5">
-                    {student.matricNo}
+                  <div className="flex items-start gap-3 mt-3">
+                    <div className="w-9 h-9 rounded-full bg-[#EAF0EC] text-[#1B4236] font-semibold text-xs flex items-center justify-center shrink-0 border border-[#245747]/20">
+                      {student.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('')}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium text-sm text-[#202721] truncate">
+                        {student.fullName}
+                      </h3>
+                      <div className="font-mono text-xs text-[#5A6258] mt-0.5">
+                        {student.matricNo}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-1 text-xs text-[#5A6258] mt-3 pt-2 border-t border-[#E5E4DE]">
@@ -411,13 +529,13 @@ export const StudentsPage: React.FC = () => {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setViewingStudent(student)}
-                      className="px-2 py-1 text-[11px] text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded"
+                      className="px-2.5 py-1 text-[11px] text-[#5A6258] hover:text-[#202721] hover:bg-stone-100 rounded cursor-pointer"
                     >
                       Dossier
                     </button>
                     <button
                       onClick={() => handleOpenEdit(student)}
-                      className="px-2 py-1 text-[11px] text-[#245747] hover:bg-[#EAF0EC] rounded font-medium"
+                      className="px-2.5 py-1 text-[11px] text-[#245747] hover:bg-[#EAF0EC] rounded font-medium cursor-pointer"
                     >
                       Edit
                     </button>
@@ -447,7 +565,7 @@ export const StudentsPage: React.FC = () => {
                   setIsAddOpen(false);
                   setEditingStudent(null);
                 }}
-                className="text-stone-400 hover:text-stone-700 p-1"
+                className="text-stone-400 hover:text-stone-700 p-1 cursor-pointer"
               >
                 <X className="w-4 h-4 stroke-[1.75]" />
               </button>
@@ -560,7 +678,7 @@ export const StudentsPage: React.FC = () => {
                     setIsAddOpen(false);
                     setEditingStudent(null);
                   }}
-                  className="px-3.5 py-1.5 text-xs text-[#5A6258] hover:text-[#202721] rounded-md"
+                  className="px-3.5 py-1.5 text-xs text-[#5A6258] hover:text-[#202721] rounded-md cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -591,7 +709,7 @@ export const StudentsPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setViewingStudent(null)}
-                className="text-stone-400 hover:text-stone-700 p-1"
+                className="text-stone-400 hover:text-stone-700 p-1 cursor-pointer"
               >
                 <X className="w-4 h-4 stroke-[1.75]" />
               </button>
@@ -682,10 +800,21 @@ export const StudentsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-3 border-t border-[#E5E4DE] bg-stone-50 flex items-center justify-end">
+            <div className="p-3 border-t border-[#E5E4DE] bg-stone-50 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  setViewingStudent(null);
+                  setActivePage('circulation');
+                }}
+                className="text-xs text-[#245747] font-medium hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5 stroke-[1.75]" />
+                <span>Go to Circulation Desk →</span>
+              </button>
+
               <button
                 onClick={() => setViewingStudent(null)}
-                className="px-3.5 py-1.5 text-xs text-[#202721] bg-white border border-[#E5E4DE] rounded-md hover:bg-stone-100"
+                className="px-3.5 py-1.5 text-xs text-[#202721] bg-white border border-[#E5E4DE] rounded-md hover:bg-stone-100 cursor-pointer"
               >
                 Close Dossier
               </button>
